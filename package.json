@@ -1,0 +1,19 @@
+{
+  "name": "markdown",
+  "version": "0.1.0",
+  "description": "Markdown to HTML converter",
+  "scripts": {
+    "build": "npm run test && webpack",
+    "start": "webpack-dev-server --open",
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  }
+}

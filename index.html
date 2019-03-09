@@ -1,0 +1,499 @@
+<html>
+  <head>
+    <script src="build/markdown.js"></script>
+    <style>
+      .md-editor {
+        width: 600px;
+        background-color: white;
+        border: 1px solid lightgrey;
+        border-radius: 3px;
+      }
+
+      .md-controls{
+        list-style-type: none;
+        margin: 0 1rem;
+        padding: 0;
+        display: none;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .md-controls.md-show {
+        display: flex;
+      }
+
+      .md-control-group{
+        padding: 0px 8px;
+      }
+
+      .md-control{
+        display: flex;
+        align-items: center;
+        float: left;
+        font-size: 12px;
+        padding: 4px 4px;
+        fill: #586069;
+      }
+
+      .md-control:hover{
+        fill: #0366d6;
+      }
+
+      .md-header {
+        background-color: rgb(236, 236, 236);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        height: 3rem;
+        border-bottom: 1px solid lightgray;
+      }
+
+      .md-tabs {
+        display: flex;
+        flex-direction: row;
+        align-self: flex-end;
+        margin: 0;
+        padding-left: .5rem;
+        height: 90%;
+      }
+
+      .md-tab {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1em;
+        width: 90px;
+        margin: auto .1rem;
+        background-color: unset;
+        border: none;
+        box-sizing: border-box;
+        cursor: pointer;
+        color: gray;
+      }
+
+      .md-tab:hover {
+        color: black;
+      }
+
+      .md-tab:focus {
+        outline: unset;
+      }
+
+      .md-tab-active {
+        height: 100%;
+        border-top-left-radius: .2rem;
+        border-top-right-radius: .2rem;
+        background-color: white;
+        border: 1px solid lightgrey;
+        border-bottom: none;
+        margin-bottom: -1px;
+        color: black;
+      }
+
+      .md-body {
+        display: none;
+        flex-direction: column;
+        height: 10rem;
+        padding: .5rem;
+      }
+
+      #md-content {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1em;
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+        border-color: lightgray;
+        padding: .5rem;
+      }
+
+      #md-preview {
+        overflow-y: auto;
+      }
+
+      #md-submit{
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1em;
+        font-weight: bold;
+        background-color: rgb(46, 197, 46);
+        border: 1px solid green;
+        border-radius: 3px;
+        color: white;
+        width: 120px;
+        height: 35px;
+        cursor: pointer;
+      }
+
+      #md-submit:hover {
+        background-color: rgb(78, 172, 78);
+      }
+
+      #md-submit:focus {
+        outline: none;
+      }
+
+      .md-show {
+        display: flex;
+      }
+
+      .md-footer {
+        background-color: rgb(236, 236, 236);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid lightgray;
+        padding: .5rem;
+      }
+
+      #md-submit.md-disabled{
+        background-color: #94d3a2;
+        border-color: rgba(27,31,35,0.2);
+        cursor: unset;
+      }
+
+      .md-tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .md-tooltip::after {
+
+        position: absolute;
+        z-index: 1000000;
+        display: none;
+        padding: 0.5em 0.75em;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1em;
+
+        color: #fff;
+        text-align: center;
+        text-decoration: none;
+        text-shadow: none;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: break-word;
+        white-space: pre;
+        pointer-events: none;
+        content: attr(aria-label);
+        background: #1b1f23;
+        border-radius: 3px;
+        /* opacity: 0; */
+
+        right: 50%;
+        bottom: 100%;
+        margin-bottom: 6px;
+
+        transform: translateX(50%);
+      }
+
+      .md-tooltip:hover::after {
+        display: inline-block;
+        text-decoration: none;
+      }
+
+      .md-tooltip::before {
+        position: absolute;
+        z-index: 1000001;
+        display: none;
+        width: 0;
+        height: 0;
+        color: #1b1f23;
+        pointer-events: none;
+        content: "";
+        border: 6px solid transparent;
+
+        top: -7px;
+        right: 50%;
+        bottom: auto;
+        margin-right: -6px;
+        border-top-color: #1b1f23;
+      }
+
+      .md-tooltip:hover::before {
+        display: inline-block;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="md-editor">
+      <div class="md-header">
+        <nav class="md-tabs">
+          <button id="md-tab-write" onclick="showWrite()" class="md-tab md-tab-active">Write</button>
+          <button id="md-tab-preview" onclick="showPreview()" class="md-tab">Preview</button>
+        </nav>
+        <ul id="md-controls" class="md-controls md-show">
+          <div class="md-control-group">
+            <li class="md-control md-tooltip" aria-label="Add header text" onclick="makeHeader()"><svg viewBox="0 0 18 16" version="1.1" width="18" height="16"><path fill-rule="evenodd" d="M13.62 9.08L12.1 3.66h-.06l-1.5 5.42h3.08zM5.7 10.13S4.68 6.52 4.53 6.02h-.08l-1.13 4.11H5.7zM17.31 14h-2.25l-.95-3.25h-4.07L9.09 14H6.84l-.69-2.33H2.87L2.17 14H0l3.3-9.59h2.5l2.17 6.34L10.86 2h2.52l3.94 12h-.01z"></path></svg></li>
+            <li class="md-control md-tooltip" aria-label="Add bold text" onclick="makeBold()"><svg class="octicon octicon-bold" viewBox="0 0 10 16" version="1.1" width="10" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M1 2h3.83c2.48 0 4.3.75 4.3 2.95 0 1.14-.63 2.23-1.67 2.61v.06c1.33.3 2.3 1.23 2.3 2.86 0 2.39-1.97 3.52-4.61 3.52H1V2zm3.66 4.95c1.67 0 2.38-.66 2.38-1.69 0-1.17-.78-1.61-2.34-1.61H3.13v3.3h1.53zm.27 5.39c1.77 0 2.75-.64 2.75-1.98 0-1.27-.95-1.81-2.75-1.81h-1.8v3.8h1.8v-.01z"></path></svg></li>
+            <li class="md-control md-tooltip" aria-label="Add italic text" onclick="makeItalic()"><svg class="octicon octicon-italic" viewBox="0 0 6 16" version="1.1" width="6" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M2.81 5h1.98L3 14H1l1.81-9zm.36-2.7c0-.7.58-1.3 1.33-1.3.56 0 1.13.38 1.13 1.03 0 .75-.59 1.3-1.33 1.3-.58 0-1.13-.38-1.13-1.03z"></path></svg></li>    
+          </div>
+          <div class="md-control-group">
+            <li class="md-control md-tooltip" aria-label="Insert a quote" onclick="makeQuote()"><svg class="octicon octicon-quote" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M6.16 3.5C3.73 5.06 2.55 6.67 2.55 9.36c.16-.05.3-.05.44-.05 1.27 0 2.5.86 2.5 2.41 0 1.61-1.03 2.61-2.5 2.61-1.9 0-2.99-1.52-2.99-4.25 0-3.8 1.75-6.53 5.02-8.42L6.16 3.5zm7 0c-2.43 1.56-3.61 3.17-3.61 5.86.16-.05.3-.05.44-.05 1.27 0 2.5.86 2.5 2.41 0 1.61-1.03 2.61-2.5 2.61-1.89 0-2.98-1.52-2.98-4.25 0-3.8 1.75-6.53 5.02-8.42l1.14 1.84h-.01z"></path></svg></li>
+            <li class="md-control md-tooltip" aria-label="Inster code" onclick="makeCode()"><svg class="octicon octicon-code" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M9.5 3L8 4.5 11.5 8 8 11.5 9.5 13 14 8 9.5 3zm-5 0L0 8l4.5 5L6 11.5 2.5 8 6 4.5 4.5 3z"></path></svg></li>
+            <li class="md-control md-tooltip" aria-label="Add a link" onclick="makeLink()"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></li>    
+          </div>
+          <div class="md-control-group">
+            <li class="md-control md-tooltip" aria-label="Add a bulleted list" onclick="makeUnorderedList()"><svg class="octicon octicon-list-unordered" viewBox="0 0 12 16" version="1.1" width="12" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M2 13c0 .59 0 1-.59 1H.59C0 14 0 13.59 0 13c0-.59 0-1 .59-1h.81c.59 0 .59.41.59 1H2zm2.59-9h6.81c.59 0 .59-.41.59-1 0-.59 0-1-.59-1H4.59C4 2 4 2.41 4 3c0 .59 0 1 .59 1zM1.41 7H.59C0 7 0 7.41 0 8c0 .59 0 1 .59 1h.81c.59 0 .59-.41.59-1 0-.59 0-1-.59-1h.01zm0-5H.59C0 2 0 2.41 0 3c0 .59 0 1 .59 1h.81c.59 0 .59-.41.59-1 0-.59 0-1-.59-1h.01zm10 5H4.59C4 7 4 7.41 4 8c0 .59 0 1 .59 1h6.81c.59 0 .59-.41.59-1 0-.59 0-1-.59-1h.01zm0 5H4.59C4 12 4 12.41 4 13c0 .59 0 1 .59 1h6.81c.59 0 .59-.41.59-1 0-.59 0-1-.59-1h.01z"></path></svg></li>
+            <li class="md-control md-tooltip" aria-label="Add a numbered list" onclick="makeOrderedList()"><svg class="octicon octicon-list-ordered" viewBox="0 0 12 16" version="1.1" width="12" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M12 12.99c0 .589 0 .998-.59.998H4.597c-.59 0-.59-.41-.59-.999 0-.59 0-.999.59-.999H11.4c.59 0 .59.41.59 1H12zM4.596 3.996H11.4c.59 0 .59-.41.59-1 0-.589 0-.999-.59-.999H4.596c-.59 0-.59.41-.59 1 0 .589 0 .999.59.999zM11.4 6.994H4.596c-.59 0-.59.41-.59 1 0 .589 0 .999.59.999H11.4c.59 0 .59-.41.59-1 0-.59 0-.999-.59-.999zM2.008 1h-.72C.99 1.19.71 1.25.26 1.34V2h.75v2.138H.17v.859h2.837v-.86h-.999V1zm.25 8.123c-.17 0-.45.03-.66.06.53-.56 1.14-1.249 1.14-1.888-.02-.78-.56-1.299-1.36-1.299-.589 0-.968.2-1.378.64l.58.579c.19-.19.38-.38.639-.38.28 0 .48.16.48.52 0 .53-.77 1.199-1.699 2.058v.58h2.998l-.09-.88h-.66l.01.01zm-.08 3.777v-.03c.44-.19.64-.47.64-.859 0-.7-.56-1.11-1.44-1.11-.479 0-.888.19-1.278.52l.55.64c.25-.2.44-.31.689-.31.27 0 .42.13.42.36 0 .27-.2.44-.86.44v.749c.83 0 .98.17.98.47 0 .25-.23.38-.58.38-.28 0-.56-.14-.81-.38l-.479.659c.3.36.77.56 1.409.56.83 0 1.529-.41 1.529-1.16 0-.5-.31-.809-.77-.939v.01z"></path></svg></li>
+            <li class="md-control md-tooltip" aria-label="Add a task list" onclick="makeTaskList()"><svg class="octicon octicon-tasklist" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M15.41 9H7.59C7 9 7 8.59 7 8c0-.59 0-1 .59-1h7.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1h.01zM9.59 4C9 4 9 3.59 9 3c0-.59 0-1 .59-1h5.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1H9.59zM0 3.91l1.41-1.3L3 4.2 7.09 0 8.5 1.41 3 6.91l-3-3zM7.59 12h7.81c.59 0 .59.41.59 1 0 .59 0 1-.59 1H7.59C7 14 7 13.59 7 13c0-.59 0-1 .59-1z"></path></svg></li>    
+          </div>
+        </ul>
+      </div>
+
+      <div id="md-body-write" class="md-body md-show">
+        <textarea name="markdown" id="md-content" placeholder="Enter text" spellcheck="false"></textarea>
+      </div>
+
+      <div id="md-body-preview" class="md-body">
+        <div id="md-preview"></div>
+      </div>
+
+      <div class="md-footer">
+        Markdown editor
+        <button id="md-submit" class="md-disabled">Submit</button>
+      </div>
+      
+    </div>
+
+    <script>
+      let showClass = 'md-show';
+      let activeClass = 'md-tab-active';
+      let mdBodyWrite = document.getElementById('md-body-write');
+      let mdBodyPreview = document.getElementById('md-body-preview');
+      let mdTabWrite = document.getElementById('md-tab-write');
+      let mdTabPreview = document.getElementById('md-tab-preview');
+      let mdControls = document.getElementById('md-controls');
+      let mdContent = document.getElementById('md-content');
+
+      let convertedText;
+
+      function showPreview() {
+        if(mdBodyWrite.classList.contains(showClass))
+          mdBodyWrite.classList.remove(showClass);
+        if(!mdBodyPreview.classList.contains(showClass))
+          mdBodyPreview.classList.add(showClass);
+        if(mdTabWrite.classList.contains(activeClass))
+          mdTabWrite.classList.remove(activeClass);
+        if(!mdTabPreview.classList.contains(activeClass))
+          mdTabPreview.classList.add(activeClass);
+
+        if(mdControls.classList.contains(showClass))
+          mdControls.classList.remove(showClass);
+        
+        if(convertedText == mdContent.value)
+          return;
+        else
+          convertedText = mdContent.value;
+        
+        preview = "nothing to preview";
+        if(mdContent.value!="") {
+          preview = markdown.makeHtml(mdContent.value);
+        }
+        document.getElementById('md-preview').innerHTML=preview;
+      }
+
+      function showWrite() {
+        if(!mdBodyWrite.classList.contains(showClass))
+          mdBodyWrite.classList.add(showClass);
+        if(mdBodyPreview.classList.contains(showClass))
+          mdBodyPreview.classList.remove(showClass);
+        if(!mdTabWrite.classList.contains(activeClass))
+          mdTabWrite.classList.add(activeClass);
+        if(mdTabPreview.classList.contains(activeClass))
+          mdTabPreview.classList.remove(activeClass);
+
+        if(!mdControls.classList.contains(showClass))
+          mdControls.classList.add(showClass);
+      }
+
+      function makeHeader() {
+        toggleMdTag(mdContent, '### ', '');
+      }
+
+      function makeBold() {
+        toggleMdTag(mdContent, '**', '**');
+      }
+
+      function makeItalic() {
+        toggleMdTag(mdContent, '_', '_');
+      }
+
+      function makeQuote() {
+        toggleMdBlockTag(mdContent, '> ', '');
+      }
+
+      function moveToParagraph(mdContent) {
+        let selectionStart = mdContent.selectionStart;
+        let selectionEnd = mdContent.selectionEnd;
+        let text = mdContent.value;
+
+        let prefix = '';
+        let suffix = '';
+        if(!(selectionStart == 1 && text[0] == '\n') && selectionStart > 1) {
+          if(text[selectionStart-1] != '\n')
+            prefix += '\n\n';
+          else if(text[selectionStart-2] != '\n')
+            prefix += '\n';
+        }
+        if(!(selectionEnd == text.length - 1 && text[text.length-2] == '\n') && selectionEnd < text.length - 1) {
+          if(text[selectionEnd] != '\n')
+            suffix += '\n\n';
+          else if(text[selectionEnd+1] != '\n')
+            suffix += '\n';
+        }
+        addMdTag(mdContent, prefix, suffix);
+      }
+
+      function makeCode() {
+        if(mdContent.value.substring(mdContent.selectionStart, mdContent.selectionEnd).includes('\n'))
+          toggleMdTag(mdContent, '```\n', '\n```');
+        else
+          toggleMdTag(mdContent, '`', '`');
+      }
+
+      function makeLink() {
+        toggleMdTag(mdContent, '[', '](url)');
+        if(mdContent.selectionStart != mdContent.selectionEnd) {
+          mdContent.setSelectionRange(mdContent.selectionEnd + 2, mdContent.selectionEnd + 5);
+        }
+      }
+
+      function makeUnorderedList() {
+        toggleMdBlockTag(mdContent, '- ', '');
+      }
+
+      function makeOrderedList() {
+        let lines = mdContent.value.substring(mdContent.selectionStart, mdContent.selectionEnd).split('\n');
+        
+        let selectionStart = mdContent.selectionStart;
+        let selectionEnd = mdContent.selectionStart;
+        let originalStart = selectionStart;
+
+        let remove = true;
+        let prefix;
+        let suffix = '';
+        for(let i = 0; i < lines.length; i++) {
+          prefix = (i+1) + '. ';
+          selectionEnd = selectionStart + lines[i].length;
+          if(!tryRemoveMdTag(mdContent.value, selectionStart + prefix.length, selectionEnd - suffix.length, prefix, suffix)) {
+            remove = false;
+            break;
+          }
+          selectionStart = selectionEnd + 1;
+        }
+
+        selectionStart = mdContent.selectionStart;
+        selectionEnd = mdContent.selectionStart;
+        if(remove) {
+          for(let i = 0; i < lines.length; i++) {
+            prefix = (i+1) + '. ';
+            selectionEnd = selectionStart + lines[i].length;
+            mdContent.setSelectionRange(selectionStart + prefix.length, selectionEnd - suffix.length);
+            removeMdTag(mdContent, prefix, suffix);
+            selectionStart = mdContent.selectionEnd + 1;
+          }
+          mdContent.setSelectionRange(originalStart, mdContent.selectionEnd);
+        } else {
+          for(let i = 0; i < lines.length; i++) {
+            prefix = (i+1) + '. ';
+            selectionEnd = selectionStart + lines[i].length;
+            mdContent.setSelectionRange(selectionStart, selectionEnd);
+            addMdTag(mdContent, prefix, suffix);
+            selectionStart = mdContent.selectionEnd + 1;
+          }
+          mdContent.setSelectionRange(originalStart, mdContent.selectionEnd);
+          moveToParagraph(mdContent);
+        }
+      }
+
+      function makeTaskList() {
+        toggleMdBlockTag(mdContent, '- [] ', '');
+      }
+
+      function addMdTag(mdContent, prefix, suffix) {
+        let selectionStart = mdContent.selectionStart;
+        let selectionEnd = mdContent.selectionEnd;
+        let text = mdContent.value;
+
+        mdContent.value = text.substring(0, selectionStart) + prefix + text.substring(selectionStart, selectionEnd) + suffix + text.substring(selectionEnd);
+        mdContent.setSelectionRange(selectionStart + prefix.length, selectionEnd + prefix.length);
+          
+        mdContent.focus();
+      }
+
+      function removeMdTag(mdContent, prefix, suffix, check=true) {
+        let selectionStart = mdContent.selectionStart;
+        let selectionEnd = mdContent.selectionEnd;
+        let text = mdContent.value;
+
+        if(check && !tryRemoveMdTag(text, selectionStart, selectionEnd, prefix, suffix))
+          return;
+
+        mdContent.value = text.substring(0, selectionStart - prefix.length) + text.substring(selectionStart, selectionEnd) + text.substring(selectionEnd + suffix.length);
+        mdContent.setSelectionRange(selectionStart - prefix.length, selectionEnd - prefix.length);
+
+        mdContent.focus();
+      }
+
+      function tryRemoveMdTag(text, l, r, prefix, suffix) {
+        return l >= prefix.length && text.substring(l - prefix.length, l) == prefix && text.substring(r, r + suffix.length) == suffix;
+      }
+
+      function toggleMdTag(mdContent, prefix, suffix) {
+        let selectionStart = mdContent.selectionStart;
+        let selectionEnd = mdContent.selectionEnd;
+        let text = mdContent.value;
+
+        let start = selectionStart - prefix.length;
+        let end = selectionEnd;
+        if(tryRemoveMdTag(text, selectionStart, selectionEnd, prefix, suffix)) {
+          removeMdTag(mdContent, prefix, suffix);
+          return false;
+        } else {
+          addMdTag(mdContent, prefix, suffix);
+          return true;
+        }
+      }
+
+      function toggleMdBlockTag(mdContent, prefix, suffix) {
+        let lines = mdContent.value.substring(mdContent.selectionStart, mdContent.selectionEnd).split('\n');
+        
+        let selectionStart = mdContent.selectionStart;
+        let selectionEnd = mdContent.selectionStart;
+        let originalStart = selectionStart;
+
+        let remove = true;
+        for(let i = 0; i < lines.length; i++) {
+          selectionEnd = selectionStart + lines[i].length;
+          if(!tryRemoveMdTag(mdContent.value, selectionStart + prefix.length, selectionEnd - suffix.length, prefix, suffix)) {
+            remove = false;
+            break;
+          }
+          selectionStart = selectionEnd + 1;
+        }
+
+        selectionStart = mdContent.selectionStart;
+        selectionEnd = mdContent.selectionStart;
+        if(remove) {
+          for(let i = 0; i < lines.length; i++) {
+            selectionEnd = selectionStart + lines[i].length;
+            mdContent.setSelectionRange(selectionStart + prefix.length, selectionEnd - suffix.length);
+            removeMdTag(mdContent, prefix, suffix);
+            selectionStart = mdContent.selectionEnd + 1;
+          }
+          mdContent.setSelectionRange(originalStart, mdContent.selectionEnd);
+        } else {
+          for(let i = 0; i < lines.length; i++) {
+            selectionEnd = selectionStart + lines[i].length;
+            mdContent.setSelectionRange(selectionStart, selectionEnd);
+            addMdTag(mdContent, prefix, suffix);
+            selectionStart = mdContent.selectionEnd + 1;
+          }
+          mdContent.setSelectionRange(originalStart, mdContent.selectionEnd);
+          moveToParagraph(mdContent);
+        }
+      }
+    </script>
+  </body>
+</html>
