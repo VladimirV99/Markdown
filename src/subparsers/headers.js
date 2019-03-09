@@ -16,18 +16,18 @@ export default function headers (text, globals) {
   let setextRegexH2 = /^(.+)[ \t]*\n-+[ \t]*\n+/gm;
 
   text = text.replace(setextRegexH1, function (wholeMatch, m1) {
-    let span = spanGamut(m1, globals),
-        hID = headerId(m1),
+    let headerData = getHeaderData(m1),
+        span = spanGamut(headerData.text, globals),
         hLevel = headerLevelStart,
-        hashBlockStr = '<h' + hLevel + hID + '>' + span + '</h' + hLevel + '>';
+        hashBlockStr = '<h' + hLevel + headerData.id + '>' + span + '</h' + hLevel + '>';
     return hashBlock(hashBlockStr, globals);
   });
 
   text = text.replace(setextRegexH2, function (wholeMatch, m1) {
-    let span = spanGamut(m1, globals),
-        hID = headerId(m1),
+    let headerData = getHeaderData(m1),
+        span = spanGamut(headerData.text, globals),
         hLevel = headerLevelStart + 1,
-        hashBlockStr = '<h' + hLevel + hID + '>' + span + '</h' + hLevel + '>';
+        hashBlockStr = '<h' + hLevel + headerData.id + '>' + span + '</h' + hLevel + '>';
     return hashBlock(hashBlockStr, globals);
   });
 
@@ -41,11 +41,10 @@ export default function headers (text, globals) {
   let atxStyle = new RegExp('^ {0,' + globals.tabWidthLimit + '}(#{1,6})[ \t]+(.+?)[ \t]*#* *\n+', 'gm');
 
   text = text.replace(atxStyle, function (wholeMatch, m1, m2) {
-    let hText = m2;
-    let span = spanGamut(hText, globals),
-        hID = headerId(m2),
+    let headerData = getHeaderData(m2),
+        span = spanGamut(headerData.text, globals),
         hLevel = headerLevelStart - 1 + m1.length,
-        header = '<h' + hLevel + hID + '>' + span + '</h' + hLevel + '>';
+        header = '<h' + hLevel + headerData.id + '>' + span + '</h' + hLevel + '>';
 
     return hashBlock(header, globals);
   });
@@ -53,29 +52,29 @@ export default function headers (text, globals) {
   return text;
 }
 
-function headerId (m) {
-  let match = m.match(/\{#([^{]+?)}(?:\s)*$/);
+function getHeaderData (m) {
+  let match = m.match(/\s*\{#([^{]+?)}\s*$/); // /(.+)[ \t]+\{#([^{]+?)}(?:\s)*$/
+  let id = '';
+  let text = m;
   if (match && match[1]) {
-    m = match[1];
-  } else {
-    return '';
+    // Prefix id to prevent causing inadvertent pre-existing style matches.
+    id = 'mdh-' + match[1];
+    id = id
+      .replace(/ /g, '-')
+      // replace previously escaped chars (&, ¨ and $)
+      .replace(/&amp;/g, '')
+      .replace(/¨T/g, '')
+      .replace(/¨D/g, '')
+      // replace rest of the chars (&~$ are repeated as they might have been escaped)
+      // borrowed from github's redcarpet (some they should produce similar results)
+      .replace(/[&+$,\/:;=?@"#{}|^¨~\[\]`\\*)(%.!'<>]/g, '')
+      .toLowerCase();
+    id = ' id="' + id + '"';
+    text = m.substring(0, m.length-match[0].length);
   }
 
-  let id = m;
-
-  // Prefix id to prevent causing inadvertent pre-existing style matches.
-  id = 'mdh-' + id;
-
-  id = id
-    .replace(/ /g, '-')
-    // replace previously escaped chars (&, ¨ and $)
-    .replace(/&amp;/g, '')
-    .replace(/¨T/g, '')
-    .replace(/¨D/g, '')
-    // replace rest of the chars (&~$ are repeated as they might have been escaped)
-    // borrowed from github's redcarpet (some they should produce similar results)
-    .replace(/[&+$,\/:;=?@"#{}|^¨~\[\]`\\*)(%.!'<>]/g, '')
-    .toLowerCase();
-
-  return ' id="' + id + '"';
+  return {
+    id: id,
+    text: text
+  };
 }
