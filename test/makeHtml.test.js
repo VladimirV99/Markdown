@@ -54,10 +54,32 @@ function assertion (testCase, converter) {
   };
 }
 
-let testsuite = getTestSuite('test/standard/');
+let testsuites = [
+  "blockquotes",
+  "code",
+  "ellipsis",
+  "emojis",
+  "emphasis",
+  "escape",
+  "headers",
+  "horizontalRules",
+  "html",
+  "images",
+  "links",
+  "lists",
+  "paragraphs",
+  "strikethrough",
+  "stripLinkDefinitions",
+  "tables"
+];
 
 describe('makeHtml() standard testsuite', function () {
-  testsuite.forEach((test) => {
-    it(test.name.replace(/-/g, ' '), assertion(test, converter));
-  });
+  testsuites.forEach(testsuite => {
+    describe(testsuite, function () {
+      let tests = getTestSuite('test/standard/' + testsuite + '/');
+      tests.forEach((test) => {
+        it(test.name.replace(/-/g, ' '), assertion(test, converter));
+      });
+    });
+  })
 });
