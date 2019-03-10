@@ -16,7 +16,7 @@ export default function headers (text, globals) {
   let setextRegexH2 = /^(.+)[ \t]*\n-+[ \t]*\n+/gm;
 
   text = text.replace(setextRegexH1, function (wholeMatch, m1) {
-    let headerData = getHeaderData(m1),
+    let headerData = getHeaderData(m1, globals),
         span = spanGamut(headerData.text, globals),
         hLevel = headerLevelStart,
         hashBlockStr = '<h' + hLevel + headerData.id + '>' + span + '</h' + hLevel + '>';
@@ -24,7 +24,7 @@ export default function headers (text, globals) {
   });
 
   text = text.replace(setextRegexH2, function (wholeMatch, m1) {
-    let headerData = getHeaderData(m1),
+    let headerData = getHeaderData(m1, globals),
         span = spanGamut(headerData.text, globals),
         hLevel = headerLevelStart + 1,
         hashBlockStr = '<h' + hLevel + headerData.id + '>' + span + '</h' + hLevel + '>';
@@ -41,7 +41,7 @@ export default function headers (text, globals) {
   let atxStyle = new RegExp('^ {0,' + globals.tabWidthLimit + '}(#{1,6})[ \t]+(.+?)[ \t]*#* *\n+', 'gm');
 
   text = text.replace(atxStyle, function (wholeMatch, m1, m2) {
-    let headerData = getHeaderData(m2),
+    let headerData = getHeaderData(m2, globals),
         span = spanGamut(headerData.text, globals),
         hLevel = headerLevelStart - 1 + m1.length,
         header = '<h' + hLevel + headerData.id + '>' + span + '</h' + hLevel + '>';
@@ -52,13 +52,13 @@ export default function headers (text, globals) {
   return text;
 }
 
-function getHeaderData (m) {
+function getHeaderData (m, globals) {
   let match = m.match(/\s*\{#([^{]+?)}\s*$/); // /(.+)[ \t]+\{#([^{]+?)}(?:\s)*$/
   let id = '';
   let text = m;
   if (match && match[1]) {
     // Prefix id to prevent causing inadvertent pre-existing style matches.
-    id = 'mdh-' + match[1];
+    id = globals.idPrefix + match[1];
     id = id
       .replace(/ /g, '-')
       // replace previously escaped chars (&, ¨ and $)

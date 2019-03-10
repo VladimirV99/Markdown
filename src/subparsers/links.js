@@ -1,4 +1,4 @@
-import { asteriskDashTildeAndColon, escapeCharactersCallback, isUndefined } from '../helpers';
+import { asteriskDashTildeAndColon, escapeCharactersCallback, isUndefined, _hashHTMLSpan } from '../helpers';
 import codeSpans from './codeSpans';
 import emoji from './emoji';
 // import underline from './underline';
@@ -78,7 +78,7 @@ function writeAnchorTag (wholeMatch, text, id, url, title, globals, emptyCase) {
 
   // optionLinksInNewWindow only applies
   // to external links. Hash links (#) open in same page
-  if (!/^#/.test(url)) {
+  if (!/^[#/]/.test(url)) {
     // escaped _
     target = ' target="¨E95Eblank"';
   }

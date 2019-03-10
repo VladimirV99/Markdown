@@ -31,7 +31,8 @@ function makeHtml(text) {
     ghCodeBlocks:    [],
     tab:             tab,
     tabWidth:        tab_width,
-    tabWidthLimit:   tab_width_limit
+    tabWidthLimit:   tab_width_limit,
+    idPrefix:        'mdh-'
   };
 
   // This lets us use ¨ trema as an escape char to avoid md5 hashes

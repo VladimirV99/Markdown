@@ -190,6 +190,10 @@ export default function lists (text, globals) {
   let subListRgx = new RegExp('^(( {0,'+globals.tabWidthLimit+'}([*+-]|\\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(?=\\S)(?![ \t]*(?:[*+-]|\\d+[.])[ \t]+)))', 'gm');
   let mainListRgx = new RegExp('(\n\n|^\n?)(( {0,'+globals.tabWidthLimit+'}([*+-]|\\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(?=\\S)(?![ \t]*(?:[*+-]|\\d+[.])[ \t]+)))', 'gm');
 
+  // add sentinel to hack around khtml/safari bug:
+  // http://bugs.webkit.org/show_bug.cgi?id=11231
+  text += '¨0';
+
   if (globals.gListLevel) {
     text = text.replace(subListRgx, function (wholeMatch, list, m2) {
       let listType = (m2.search(/[*+-]/g) > -1) ? 'ul' : 'ol';
@@ -201,6 +205,9 @@ export default function lists (text, globals) {
       return parseConsecutiveLists(list, listType, false);
     });
   }
+
+  // strip sentinel
+  text = text.replace(/¨0/, '');
   
   return text;
 }

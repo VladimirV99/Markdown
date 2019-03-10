@@ -1,6 +1,6 @@
 let should = require('chai').should();
 let fs = require('fs');
-let converter = require('../build/markdown.node');
+let converter = require('./build/markdown');
 
 function getTestSuite(dir) {
   return fs.readdirSync(dir)
