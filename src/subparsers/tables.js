@@ -55,7 +55,7 @@ export default function tables (text, globals) {
 
     for (let i = 0; i < tableLines.length; ++i) {
       // strip wrong first and last column if wrapped tables are used
-      let rgx = new RegExp('^ {0,'+globals.tabWidthLimit+'}\|', '');
+      let rgx = new RegExp('^ {0,'+globals.tabWidthLimit+'}\\|', '');
       if (rgx.test(tableLines[i])) {
         tableLines[i] = tableLines[i].replace(rgx, '');
       }
