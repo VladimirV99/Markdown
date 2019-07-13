@@ -7,7 +7,8 @@ let nodeConfig = {
     filename: 'markdown.node.js',
     path: path.resolve(__dirname, 'build'),
     library: 'markdown',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    globalObject: 'this'
   },
   target: 'node'
 };
