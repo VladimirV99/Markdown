@@ -49,9 +49,6 @@ function makeHtml(text) {
   text = text.replace(/\r\n/g, '\n'); // DOS to Unix
   text = text.replace(/\r/g, '\n'); // Mac to Unix
 
-  // Stardardize line spaces
-  text = text.replace(/\u00A0/g, '&nbsp;');
-
   // Make sure text begins and ends with a couple of newlines:
   text = '\n\n' + text + '\n\n';
 
@@ -75,6 +72,9 @@ function makeHtml(text) {
   text = blockGamut(text, globals);
   text = unhashHTMLSpans(text, globals);
   text = unescapeSpecialChars(text, globals);
+
+  // Stardardize line spaces
+  text = text.replace(/\u00A0/g, '&nbsp;');
 
   // attacklab: Restore dollar signs
   text = text.replace(/¨D/g, '$$');
