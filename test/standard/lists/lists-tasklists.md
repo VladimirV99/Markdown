@@ -1,8 +1,8 @@
 # my things
 
  -  foo
- - [] bar
- - [ ] baz
- - [x] bazinga
+ - [ ] bar
+ - [x] baz
+ - [X] bazinga
 
 otherthings

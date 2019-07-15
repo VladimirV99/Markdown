@@ -46,7 +46,7 @@ export default function lists (text, globals) {
     // attacklab: add sentinel to emulate \z
     listStr += '¨0';
 
-    let rgx = new RegExp('(\n)?(^ {0,'+globals.tabWidthLimit+'})([*+-]|\\d+[.])[ \t]+((\\[(x|X| )?])?[ \t]*[^\r]*?(\n{1,2}))(?=\n*(¨0| {0,'+globals.tabWidthLimit+'}([*+-]|\\d+[.])[ \t]+))', 'gm'),
+    let rgx = new RegExp('(\n)?(^ {0,'+globals.tabWidthLimit+'})([*+-]|\\d+[.])[ \t]+((\\[(x|X| )])?[ \t]*[^\r]*?(\n{1,2}))(?=\n*(¨0| {0,'+globals.tabWidthLimit+'}([*+-]|\\d+[.])[ \t]+))', 'gm'),
         isParagraphed = (/\n[ \t]*\n(?!¨0)/.test(listStr));
 
     listStr = listStr.replace(rgx, function (wholeMatch, m1, m2, m3, m4, taskbtn, checked) {
