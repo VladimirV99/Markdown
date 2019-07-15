@@ -12,8 +12,8 @@ export default function headers (text, globals) {
   //	Header 2
   //	--------
   //
-  let setextRegexH1 = /^(.+)[ \t]*\n=+[ \t]*\n+/gm;
-  let setextRegexH2 = /^(.+)[ \t]*\n-+[ \t]*\n+/gm;
+  let setextRegexH1 = /^(.+)[ \t]*\n={2,}[ \t]*\n+/gm;
+  let setextRegexH2 = /^(.+)[ \t]*\n-{2,}[ \t]*\n+/gm;
 
   text = text.replace(setextRegexH1, function (wholeMatch, m1) {
     let headerData = getHeaderData(m1, globals),
