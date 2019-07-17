@@ -36,7 +36,8 @@ function makeHtml(text) {
     tabWidthLimit:   tab_width_limit,
     idPrefix:        'mdh-',
     options:         {
-      imageCaptions: options.imageCaptions
+      imageCaptions: getOption(options.imageCaptions, false),
+      openLinksInNewTab: getOption(options.openLinksInNewTab, false)
     }
   };
 
@@ -95,6 +96,12 @@ function setOptions(o) {
     options = o;
   else
     options = {};
+}
+
+function getOption(option, defaultValue) {
+  if(option!=null && option!=undefined && (option===true || option===false))
+    return option;
+  return defaultValue;
 }
 
 export {

@@ -86,10 +86,15 @@ describe('makeHtml() standard testsuite', function () {
 });
 
 describe('makeHtml() imageCaptions testsuite', function () {
-  
   let tests = getTestSuite('test/imageCaptions/');
   tests.forEach((test) => {
     it(test.name.replace(/-/g, ' '), assertion(test, converter, {imageCaptions: true}));
   });
-  
+});
+
+describe('makeHtml() openLinkInNewTab testsuite', function () {
+  let tests = getTestSuite('test/openLinksInNewTab/');
+  tests.forEach((test) => {
+    it(test.name.replace(/-/g, ' '), assertion(test, converter, {openLinksInNewTab: true}));
+  });
 });

@@ -1,7 +1,7 @@
 import { asteriskDashTildeAndColon, escapeCharactersCallback, isUndefined, _hashHTMLSpan } from '../helpers';
 import codeSpans from './codeSpans';
 import emoji from './emoji';
-// import underline from './underline';
+import underline from './underline';
 import italicsAndBold from './italicsAndBold';
 import strikethrough from './strikethrough';
 import ellipsis from './ellipsis';
@@ -14,16 +14,7 @@ import hashHTMLSpans from './hashHTMLSpans';
 // In inline links the destination and title are given immediately after the link text.
 // In reference links the destination and title are defined elsewhere in the document.
 
-/**
- * Helper function: Wrapper function to pass as second replace parameter
- *
- * @param {RegExp} rgx
- * @param {string} evtRootName
- * @param {{}} options
- * @param {{}} globals
- * @returns {Function}
- */
-function replaceAnchorTag (rgx, globals, emptyCase) {
+function replaceAnchorTag (globals, emptyCase) {
   emptyCase = !!emptyCase;
   return function (wholeMatch, text, id, url, m5, m6, title) {
     // bail we we find 2 newlines somewhere
@@ -34,14 +25,6 @@ function replaceAnchorTag (rgx, globals, emptyCase) {
   };
 }
 
-/**
- * Helper Function: Normalize and write an anchor tag based on passed parameters
- * @param evt
- * @param options
- * @param globals
- * @param {boolean} emptyCase
- * @returns {string}
- */
 function writeAnchorTag (wholeMatch, text, id, url, title, globals, emptyCase) {
   let target = '';
 
@@ -78,15 +61,15 @@ function writeAnchorTag (wholeMatch, text, id, url, title, globals, emptyCase) {
 
   // optionLinksInNewWindow only applies
   // to external links. Hash links (#) open in same page
-  if (!/^[#/]/.test(url)) {
+  if (globals.options.openLinksInNewTab && !/^[#/]/.test(url)) {
     // escaped _
-    target = ' target="¨E95Eblank"';
+    target = ' rel="noopener noreferrer" target="¨E95Eblank"';
   }
 
   // Text can be a markdown element, so we run through the appropriate parsers
   text = codeSpans(text, globals);
   text = emoji(text, globals);
-  // text = underline(text, globals);
+  text = underline(text, globals);
   text = italicsAndBold(text, globals);
   text = strikethrough(text, globals);
   text = ellipsis(text, globals);
@@ -142,7 +125,7 @@ function links_inline (text, globals) {
   
   // 1. Look for empty cases: []() and [empty]() and []("title")
   let rgxEmpty = /\[(.*?)]()()()()\(<? ?>? ?(?:["'](.*)["'])?\)/g;
-  text = text.replace(rgxEmpty, replaceAnchorTag(rgxEmpty, globals, true));
+  text = text.replace(rgxEmpty, replaceAnchorTag(globals, true));
 
   // 2. Look for cases with crazy urls like ./image/cat1).png
   let rgxCrazy = /\[((?:\[[^\]]*]|[^\[\]])*)]()\s?\([ \t]?<([^>]*)>(?:[ \t]*((["'])([^"]*?)\5))?[ \t]?\)/g;
@@ -152,11 +135,11 @@ function links_inline (text, globals) {
   // [text](url.com) || [text](<url.com>) || [text](url.com "title") || [text](<url.com> "title")
   //var rgx2 = /\[[ ]*[\s]?[ ]*([^\n\[\]]*?)[ ]*[\s]?[ ]*] ?()\(<?[ ]*[\s]?[ ]*([^\s'"]*)>?(?:[ ]*[\n]?[ ]*()(['"])(.*?)\5)?[ ]*[\s]?[ ]*\)/; // this regex is too slow!!!
   let rgx2 = /\[([\S ]*?)]\s?()\( *<?([^\s'"]*?(?:\([\S]*?\)[\S]*?)?)>?\s*(?:()(['"])(.*?)\5)? *\)/g;
-  text = text.replace(rgx2, replaceAnchorTag(rgx2, globals));
+  text = text.replace(rgx2, replaceAnchorTag(globals));
 
   // 4. inline links with titles wrapped in (): [foo](bar.com (title))
   let rgx3 = /\[([\S ]*?)]\s?()\( *<?([^\s'"]*?(?:\([\S]*?\)[\S]*?)?)>?\s+()()\((.*?)\) *\)/g;
-  text = text.replace(rgx3, replaceAnchorTag(rgx3, globals));
+  text = text.replace(rgx3, replaceAnchorTag(globals));
   
   return text;
 }
@@ -167,7 +150,7 @@ function links_inline (text, globals) {
 function links_reference (text, globals) {
 
   let rgx = /\[((?:\[[^\]]*]|[^\[\]])*)] ?(?:\n *)?\[(.*?)]()()()()/g;
-  text = text.replace(rgx, replaceAnchorTag(rgx, globals));
+  text = text.replace(rgx, replaceAnchorTag(globals));
 
   return text;
 }
@@ -178,7 +161,7 @@ function links_reference (text, globals) {
 function links_referenceShortcut (text, globals) {
 
   let rgx = /\[([^\[\]]+)]()()()()()/g;
-  text = text.replace(rgx, replaceAnchorTag(rgx, globals));
+  text = text.replace(rgx, replaceAnchorTag(globals));
 
   return text;
 }
