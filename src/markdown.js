@@ -8,6 +8,8 @@ import blockGamut from './subparsers/blockGamut';
 import unhashHTMLSpans from './subparsers/unhashHtmlSpans';
 import unescapeSpecialChars from './subparsers/unescapeSpecialChars';
 
+var options = {};
+
 function makeHtml(text) {
   //check if text is not falsy
   if (!text) {
@@ -32,7 +34,10 @@ function makeHtml(text) {
     tab:             tab,
     tabWidth:        tab_width,
     tabWidthLimit:   tab_width_limit,
-    idPrefix:        'mdh-'
+    idPrefix:        'mdh-',
+    options:         {
+      imageCaptions: options.imageCaptions
+    }
   };
 
   // This lets us use ¨ trema as an escape char to avoid md5 hashes
@@ -85,6 +90,13 @@ function makeHtml(text) {
   return text;
 }
 
+function setOptions(o) {
+  if(o)
+    options = o;
+  else
+    options = {};
+}
+
 export {
-  makeHtml
+  makeHtml, setOptions
 }

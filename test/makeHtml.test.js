@@ -46,15 +46,16 @@ function normalize (testCase) {
   return testCase;
 }
 
-function assertion (testCase, converter) {
+function assertion (testCase, converter, options={}) {
   return function () {
+    converter.setOptions(options);
     testCase.actual = converter.makeHtml(testCase.input);
     testCase = normalize(testCase);
     testCase.actual.should.equal(testCase.expected, testCase.file);
   };
 }
 
-let testsuites = [
+let standardTestsuites = [
   "blockquotes",
   "code",
   "ellipsis",
@@ -74,7 +75,7 @@ let testsuites = [
 ];
 
 describe('makeHtml() standard testsuite', function () {
-  testsuites.forEach(testsuite => {
+  standardTestsuites.forEach(testsuite => {
     describe(testsuite, function () {
       let tests = getTestSuite('test/standard/' + testsuite + '/');
       tests.forEach((test) => {
@@ -82,4 +83,13 @@ describe('makeHtml() standard testsuite', function () {
       });
     });
   })
+});
+
+describe('makeHtml() imageCaptions testsuite', function () {
+  
+  let tests = getTestSuite('test/imageCaptions/');
+  tests.forEach((test) => {
+    it(test.name.replace(/-/g, ' '), assertion(test, converter, {imageCaptions: true}));
+  });
+  
 });

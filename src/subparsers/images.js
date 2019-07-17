@@ -58,7 +58,13 @@ export default function images (text, globals) {
       .replace(asteriskDashTildeAndColon, escapeCharactersCallback);
     //url = showdown.helper.escapeCharacters(url, '*_', false);
     url = url.replace(asteriskDashTildeAndColon, escapeCharactersCallback);
-    let result = '<img src="' + url + '" alt="' + altText + '"';
+    let result = '';
+
+    if (globals.options.imageCaptions && altText) {
+      result += '<figure>';
+    }
+
+    result += '<img src="' + url + '" alt="' + altText + '"';
 
     if (title && isString(title)) {
       title = title
@@ -77,6 +83,11 @@ export default function images (text, globals) {
     }
 
     result += ' />';
+
+    if (globals.options.imageCaptions && altText) {
+      result += '<figcaption>' + altText + '</figcaption>';
+      result += '</figure>';
+    }
 
     return result;
   }
