@@ -25,3 +25,8 @@ jobs:
       run: npm install
     - name: Test Project
       run: npm test
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+          name: markdown
+          path: build/
